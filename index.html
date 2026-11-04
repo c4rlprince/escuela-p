@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escuela de Nuestra Señora de la Salette</title>
+
+  <!-- Typography & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Section-separated Stylesheets -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/performance.css">
+  <link rel="stylesheet" href="css/reports.css">
+</head>
+<body>
+
+<!-- ==================== LOGIN VIEW ==================== -->
+  <div id="login" class="login">
+    <div class="login-card-container">
+      
+      <!-- Left Panel: Escuela Institutional Brand & Overview -->
+      <div class="login-left">
+        <div class="brand-header">
+          <img class="brand-logo" src="la logo.webp" alt="Escuela Logo">
+          <div class="brand-text">
+            <span>Escuela de Nuestra</span>
+            <span>Señora de la Salette</span>
+          </div>
+        </div>
+
+        <div class="brand-center">
+          <h1 class="brand-title">e-scuela</h1>
+          <p class="brand-tagline">Integrated Academic &amp; Student Portal</p>
+          <p class="brand-desc">
+            Seamless access to official student records, online enrollment registration, grade management, and institutional performance reports.
+          </p>
+        </div>
+
+        <div class="brand-footer">
+          <span class="brand-pill"><i class="fa-solid fa-calendar-check fa-fw"></i> S.Y. 2026–2027</span>
+          <span class="brand-motto">Faith • Virtue • Wisdom</span>
+        </div>
+      </div>
+
+      <!-- Right Panel: Clean Sign-In Form -->
+      <div class="login-right">
+        <div class="login-form-inner">
+          
+          <!-- Role Pill Toggle -->
+          <div class="login-type" id="loginTypeToggle">
+            <div class="login-type-slider" id="loginSlider"></div>
+            <button type="button" id="facultyBtn" class="active" onclick="selectLoginType('faculty')">Administrator / Faculty</button>
+            <button type="button" id="studentBtn" onclick="selectLoginType('student')">Student</button>
+          </div>
+
+          <!-- Credentials Form -->
+          <div class="field">
+            <label for="username" id="usernameLabel">Username</label>
+            <input id="username" type="text" placeholder="Enter username" autocomplete="username">
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Enter password" autocomplete="current-password">
+          </div>
+
+          <button class="primary login-button" onclick="login()">Login</button>
+          <div id="loginError" class="error"></div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== APP SHELL & NAVIGATION ==================== -->
+  <div id="app" class="app hidden">
+    <div id="drawerOverlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-left" onclick="goHome()">
+          <img class="logo" src="la logo.webp" alt="Escuela Logo">
+          <div>
+            <strong>e-scuela</strong>
+            <small id="systemRole">School Management</small>
+          </div>
+        </div>
+        <button id="closeDrawerBtn" class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <nav class="nav" id="navigation"></nav>
+    </aside>
+
+    <main class="main">
+      <header class="top">
+        <div class="top-left">
+          <button id="menuToggle" class="menu-toggle" aria-label="Open Navigation menu" onclick="toggleDrawer()">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="user">Logged in as <b id="loggedUser">User</b></div>
+      </header>
+
+      <!-- 1. DASHBOARD -->
+      <section id="dashboard" class="page">
+        <div class="cards">
+          <div class="card"><div class="label">Total Students</div><div class="value" id="totalStudents">0</div></div>
+          <div class="card"><div class="label">Enrolled Students</div><div class="value" id="enrolledStudents">0</div></div>
+          <div class="card"><div class="label">Grade 12 Students</div><div class="value" id="graduatingStudents">0</div></div>
+          <div class="card"><div class="label">Failed Subjects</div><div class="value" id="failedCount">0</div></div>
+          <div class="card"><div class="label">Dropped Students</div><div class="value" id="droppedCount">0</div></div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h3>Recent Students</h3>
+            <div id="recentStudents"></div>
+          </div>
+          <div class="panel">
+            <h3>System Overview</h3>
+            <p style="color: var(--text-muted);">Unified school management system for student records, enrollment, grading, academic performance, and official reports.</p>
+            <div class="actions">
+              <button class="primary" onclick="showPage('students')">Manage Students</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. STUDENT INFORMATION -->
+      <section id="students" class="page hidden">
+        <div class="panel">
+          <div class="section-head">
+            <h3>Student Information</h3>
+            <button class="primary" onclick="openStudentForm()">+ Add Student</button>
+          </div>
+          
+          <div class="filters">
+            <input id="studentSearch" placeholder="Search name or ID..." oninput="renderStudents()">
+            <select id="studentGrade" onchange="renderStudents()"></select>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Grade</th>
+                  <th>Section</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="studentTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="studentForm" class="panel hidden">
+          <h3>Add Student</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="fId">Student ID Number (Login Username)</label>
+              <input id="fId" placeholder="0000-000">
+            </div>
+            <div class="field">
+              <label for="fName">Full Name</label>
+              <input id="fName" placeholder="e.g. Juan Dela Cruz">
+            </div>
+            <div class="field">
+              <label for="fGrade">Grade</label>
+              <select id="fGrade"></select>
+            </div>
+            <div class="field">
+              <label for="fStatus">Status</label>
+              <select id="fStatus">
+                <option value="Regular">Regular</option>
+                <option value="Irregular">Irregular</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fContact">Contact Number</label>
+              <input id="fContact" placeholder="e.g. 09123456789">
+            </div>
+            <div class="field">
+              <label for="fGuardian">Guardian</label>
+              <input id="fGuardian" placeholder="Parent / Guardian Name">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" onclick="saveStudent()">Save Student</button>
+            <button class="secondary" onclick="closeStudentForm()">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. ENROLLMENT -->
+      <section id="enrollment" class="page hidden">
+        <div class="panel">
+          <div class="section-head">
+            <h3>Enrollment Registration</h3>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="eStudent">Student</label>
+              <select id="eStudent"></select>
+            </div>
+            <div class="field">
+              <label for="eSY">School Year</label>
+              <input id="eSY" value="2026-2027">
+            </div>
+            <div class="field">
+              <label for="eGrade">Grade Level (Auto-synced)</label>
+              <input id="eGrade" readonly style="background:#f8fafc;cursor:not-allowed;">
+            </div>
+            <div class="field">
+              <label for="eStrand">Strand / Course</label>
+              <select id="eStrand">
+                <option value="STEM" selected>STEM</option>
+                <option value="ABM">ABM</option>
+                <option value="HUMSS">HUMSS</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="eSection">Section</label>
+              <select id="eSection"></select>
+            </div>
+            <div class="field date-field-container">
+              <label for="eDate">Enrollment Date</label>
+              <input id="eDate" type="date">
+            </div>
+            <div class="field">
+              <label for="eStatus">Academic Status (Auto-synced)</label>
+              <input id="eStatus" readonly style="background:#f8fafc;cursor:not-allowed;font-weight:700;">
+            </div>
+            <div class="field">
+              <label for="eEnrollmentStatus">Enrollment Status</label>
+              <select id="eEnrollmentStatus">
+                <option value="Enrolled">Enrolled</option>
+                <option value="Dropped">Dropped</option>
+              </select>
+            </div>
+
+            <div class="field span-2">
+              <label style="font-weight:700;margin-bottom:10px;">Subjects to Take (Check subjects to enroll)</label>
+              <div id="enrollmentSubjects" class="subject-checkbox-grid"></div>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top: 18px;">
+            <button type="button" class="primary" onclick="saveEnrollment()">Save Enrollment</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Enrollment Records</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>School Year</th>
+                  <th>Grade</th>
+                  <th>Strand</th>
+                  <th>Section</th>
+                  <th>Enrollment Date</th>
+                  <th>Status</th>
+                  <th>Enrollment Status</th>
+                </tr>
+              </thead>
+              <tbody id="enrollmentTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. GRADES MANAGEMENT -->
+      <section id="grades" class="page hidden">
+        <div class="panel">
+          <div class="section-head">
+            <h3>Grades Management</h3>
+
+            <div class="grades-filter-bar">
+              <select id="gradeFilterYear" onchange="handleGradeYearChange()">
+                <option value="">All Year Levels</option>
+              </select>
+              <select id="gradeFilterStrand" onchange="handleGradeStrandChange()">
+                <option value="">All Strands</option>
+                <option value="STEM">STEM</option>
+                <option value="ABM">ABM</option>
+                <option value="HUMSS">HUMSS</option>
+              </select>
+              <select id="gradeFilterSection" onchange="filterGradeStudents()">
+                <option value="">All Sections</option>
+              </select>
+            </div>
+
+            <select id="gradeStudent" onchange="renderGrades()"></select>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>1st</th>
+                  <th>2nd</th>
+                  <th>3rd</th>
+                  <th>4th</th>
+                  <th>Final</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="gradeTable"></tbody>
+            </table>
+          </div>
+
+          <div class="actions">
+            <button class="primary" onclick="saveGrades()">Save Grades</button>
+            <button class="secondary" onclick="showPage('status')">View Subject Status</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. ACADEMIC PERFORMANCE (LIST FORMAT + SUMMARY & CHART) -->
+      <section id="performance" class="page hidden">
+        <div class="panel">
+          <div class="section-head">
+            <h3>Top 1–3 Academic Honors</h3>
+            <span class="badge regular">Overall General Averages</span>
+          </div>
+          <div id="topPerformersList" class="honors-list"></div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h3>Academic Summary</h3>
+            <div id="performanceSummary"></div>
+          </div>
+          <div class="panel">
+            <h3>Performance by Subject</h3>
+            <div id="performanceChart" class="chart"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. SUBJECT STATUS (ADMIN ONLY) -->
+      <section id="status" class="page hidden">
+        <div class="panel">
+          <div class="section-head">
+            <h3>Subject Status</h3>
+            <div class="filters">
+              <select id="statusFilter" onchange="renderStatus()">
+                <option value="">All Status</option>
+                <option>Passed</option>
+                <option>Failed</option>
+              </select>
+              <select id="statusSubject" onchange="renderStatus()">
+                <option value="">All Subjects</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Subject</th>
+                  <th>Final Grade</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="statusTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. REPORTS -->
+      <section id="reports" class="page hidden">
+        <div class="panel">
+          <div class="section-head">
+            <h3>Official Reports</h3>
+            <small style="color:var(--text-muted);">Preview reports on-screen, print directly, or download as official PDF files</small>
+          </div>
+          <div class="report-list" id="reportList"></div>
+        </div>
+      </section>
+
+      <!-- 8. USER MANAGEMENT -->
+      <section id="users" class="page hidden">
+        <div class="panel">
+          <h3>User Management</h3>
+          <p style="color: var(--text-muted);">Authorized accounts (Students log in using their ID Number as username).</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Username / ID</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>admin</td>
+                  <td>Administrator</td>
+                  <td>Administrator</td>
+                  <td><span class="badge regular">Active</span></td>
+                </tr>
+                <tr>
+                  <td>faculty</td>
+                  <td>Faculty</td>
+                  <td>Faculty</td>
+                  <td><span class="badge regular">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. SETTINGS -->
+      <section id="settings" class="page hidden">
+        <div class="panel">
+          <h3>Settings</h3>
+          <div class="form-grid">
+            <div class="field"><label>School Name</label><input value="Escuela de Nuestra Señora de la Salette"></div>
+            <div class="field"><label>Current School Year</label><input value="2026-2027"></div>
+          </div>
+          <button class="primary" onclick="toast('Settings updated.')">Save Settings</button>
+        </div>
+      </section>
+
+      <!-- ==================== STUDENT PORTAL (SUBJECT STATUS REMOVED) ==================== -->
+      <section id="studentHome" class="page hidden">
+        <div class="student-welcome">
+          <h2 id="studentWelcomeName">Welcome, Student</h2>
+          <p>Welcome to your official e-scuela student portal.</p>
+        </div>
+        <div class="grid2">
+          <div class="panel"><h3>My Information</h3><div id="studentProfile" class="profile-box"></div></div>
+          <div class="panel"><h3>Academic Summary</h3><div id="mySummary"></div></div>
+        </div>
+      </section>
+
+      <section id="studentProfilePage" class="page hidden">
+        <div class="panel"><h3>My Profile</h3><div id="myProfileDetails" class="profile-box"></div></div>
+      </section>
+
+      <section id="studentEnrollment" class="page hidden">
+        <div class="panel">
+          <h3>My Enrollment Information</h3>
+          <div id="myEnrollmentDetails" class="portal-cards"></div>
+        </div>
+      </section>
+
+      <section id="studentSubjects" class="page hidden">
+        <div class="panel">
+          <h3>My Subjects</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Subject</th><th>Final Grade</th><th>Status</th></tr></thead>
+              <tbody id="mySubjectsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="studentGrades" class="page hidden">
+        <div class="panel">
+          <h3>My Grades</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Subject</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>Final</th><th>Status</th></tr></thead>
+              <tbody id="myGradeTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="studentPerformance" class="page hidden">
+        <div class="grid2">
+          <div class="panel"><h3>My Academic Performance</h3><div id="myPerformanceSummary"></div></div>
+          <div class="panel"><h3>Performance by Subject</h3><div id="myPerformanceChart" class="chart"></div></div>
+        </div>
+      </section>
+
+      <section id="studentSchedule" class="page hidden">
+        <div class="panel">
+          <h3>Class Schedule</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Subject</th><th>Day</th><th>Time</th><th>Room</th><th>Instructor</th></tr></thead>
+              <tbody id="myScheduleTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="studentReports" class="page hidden">
+        <div class="panel">
+          <div class="section-head">
+            <h3>My Official Reports</h3>
+            <small style="color:var(--text-muted);">View, print, or download your official student documents</small>
+          </div>
+          <div class="report-list">
+            <div class="report">
+              <span>My Academic Performance Report</span>
+              <div class="report-actions">
+                <button class="secondary table-btn" onclick="viewStudentReport('My Academic Report')"><i class="fa-solid fa-eye fa-fw"></i> View</button>
+                <button class="secondary table-btn" onclick="printStudentReport('My Academic Report')"><i class="fa-solid fa-print fa-fw"></i> Print</button>
+                <button class="primary table-btn" onclick="downloadStudentReportPDF('My Academic Report')"><i class="fa-solid fa-file-pdf fa-fw"></i> Download (PDF)</button>
+              </div>
+            </div>
+            <div class="report">
+              <span>My Certificate of Enrollment</span>
+              <div class="report-actions">
+                <button class="secondary table-btn" onclick="viewStudentReport('My Enrollment Report')"><i class="fa-solid fa-eye fa-fw"></i> View</button>
+                <button class="secondary table-btn" onclick="printStudentReport('My Enrollment Report')"><i class="fa-solid fa-print fa-fw"></i> Print</button>
+                <button class="primary table-btn" onclick="downloadStudentReportPDF('My Enrollment Report')"><i class="fa-solid fa-file-pdf fa-fw"></i> Download (PDF)</button>
+              </div>
+            </div>
+            <div class="report">
+              <span>My Official Report Card</span>
+              <div class="report-actions">
+                <button class="secondary table-btn" onclick="viewStudentReport('My Grade Report')"><i class="fa-solid fa-eye fa-fw"></i> View</button>
+                <button class="secondary table-btn" onclick="printStudentReport('My Grade Report')"><i class="fa-solid fa-print fa-fw"></i> Print</button>
+                <button class="primary table-btn" onclick="downloadStudentReportPDF('My Grade Report')"><i class="fa-solid fa-file-pdf fa-fw"></i> Download (PDF)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+  <!-- 1. Student View Profile Modal -->
+  <div id="studentViewModal" class="modal-backdrop hidden" onclick="closeStudentModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-info">
+          <div class="modal-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+          <div>
+            <h3 id="modalStudentName">Student Profile</h3>
+            <span id="modalStudentID" class="modal-badge">ID: 0000-000</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeStudentModal()" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalStudentBody"></div>
+      <div class="modal-footer">
+        <button class="secondary" onclick="closeStudentModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Report View, Print & Download Modal -->
+  <div id="reportViewModal" class="modal-backdrop hidden" onclick="closeReportModal(event)">
+    <div class="modal-card modal-lg" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 id="modalReportTitle">Report Preview</h3>
+          <small style="color:var(--text-muted);">Escuela de Nuestra Señora de la Salette</small>
+        </div>
+        <button class="modal-close" onclick="closeReportModal()" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body modal-report-body" id="modalReportContent"></div>
+      <div class="modal-footer">
+        <button class="secondary" onclick="closeReportModal()">Close</button>
+        <button class="secondary" id="modalPrintBtn"><i class="fa-solid fa-print fa-fw"></i> Print</button>
+        <button class="primary" id="modalDownloadPdfBtn"><i class="fa-solid fa-file-pdf fa-fw"></i> Download (PDF)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+<!-- PDF Engine CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Section-separated Scripts -->
+  <script src="js/store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/students.js"></script>
+  <script src="js/enrollment.js"></script>
+  <script src="js/grades.js"></script>
+  <script src="js/performance.js"></script>
+  <script src="js/status.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/student-portal.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
