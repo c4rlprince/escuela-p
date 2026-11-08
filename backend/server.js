@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const enrollmentRoutes = require('./routes/enrollmentRoutes');
+const studentRoutes = require('./routes/studentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json()); // Parses incoming JSON payloads
 
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/students', studentRoutes);
 
 // Root test route
 app.get('/api/health', (req, res) => {

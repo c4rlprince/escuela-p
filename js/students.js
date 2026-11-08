@@ -46,9 +46,20 @@ function saveStudent() {
   toast(`Registered: ${formatNameId(s)}`);
 }
 
-function deleteStudent(id) {
+async function deleteStudent(id) {
   const s = data.students.find(x => x.id === id);
   if (!s || !confirm(`Remove ${formatNameId(s)}?`)) return;
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/students/${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "Database rejected the deletion.");
+  } catch (error) {
+    console.error("Error deleting student from database:", error);
+    return toast(`Student was not removed: ${error.message}`);
+  }
 
   data.students = data.students.filter(x => x.id !== id);
   data.enrollments = data.enrollments.filter(e => e.student !== id);
